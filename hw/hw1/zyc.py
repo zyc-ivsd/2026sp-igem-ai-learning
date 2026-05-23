@@ -24,11 +24,11 @@ print(f"输入:\n{input_tensor.squeeze()}")                # squeeze去掉大小
 # padding=0:      不在边缘补0
 
 conv = nn.Conv2d(
-    in_channels=________,      
-    out_channels=________,     
-    kernel_size=________,     
-    stride=________,           
-    padding=________           
+    in_channels= 1,      
+    out_channels= 1,     
+    kernel_size= 3,     
+    stride= 1,           
+    padding= 0           
 )
 
 # 为了让输出稳定可预测，手动设置卷积核权重（教学用）
@@ -71,7 +71,7 @@ print(f"池化前:\n{feature_map.squeeze()}")
 # ========== 创建 MaxPool2d ==========
 # kernel_size=2: 窗口大小 2x2
 # stride=2:      每次滑2步（不重叠）
-pool = nn.MaxPool2d(kernel_size=________, stride=________)  
+pool = nn.MaxPool2d(kernel_size= 2, stride= 2)  
 
 output = pool(feature_map)
 print(f"\n池化后形状: {output.shape}")  
@@ -123,7 +123,7 @@ x = torch.randn(2, 3, 32, 32)  # [N=2, C=3, H=32, W=32]
 print(f"输入:              {x.shape}  ← 2张彩色图片")
 
 # 第1层卷积：3通道 → 16通道（16个卷积核，每个扫描3通道输入）
-conv1 = nn.Conv2d(in_channels=________, out_channels=________,    
+conv1 = nn.Conv2d(in_channels= 3 , out_channels= 16,    
                   kernel_size=3, padding=1)
 x = conv1(x)
 print(f"Conv(3→16):        {x.shape}  ← 16张特征图(每个卷积核输出1张)")
@@ -134,7 +134,7 @@ x = pool(x)
 print(f"MaxPool:           {x.shape}  ← 高宽减半，通道不变")
 
 # 第2层卷积：16通道 → 32通道（32个卷积核，每个扫描16通道输入）
-conv2 = nn.Conv2d(in_channels=________, out_channels=________,   
+conv2 = nn.Conv2d(in_channels = 16, out_channels=32,   
                   kernel_size=3, padding=1)
 x = conv2(x)
 print(f"Conv(16→32):       {x.shape}  ← 32张特征图")
@@ -143,7 +143,7 @@ x = pool(x)
 print(f"MaxPool:           {x.shape}")
 
 # 第3层卷积：32通道 → 64通道
-conv3 = nn.Conv2d(in_channels=________, out_channels=________,    
+conv3 = nn.Conv2d(in_channels=32, out_channels=64,    
                   kernel_size=3, padding=1)
 x = conv3(x)
 print(f"Conv(32→64):       {x.shape}  ← 64张特征图")
@@ -186,19 +186,19 @@ class MyCNN(nn.Module):
         # ===== 特征提取层（Conv + ReLU + Pool）=====
         self.features = nn.Sequential(
             # Block 1: 3通道(RGB) → 16通道, 32x32 → 16x16
-            nn.Conv2d(in_channels=________, out_channels=________,   
+            nn.Conv2d(in_channels=3, out_channels=16,   
                       kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=________, stride=________),    
+            nn.MaxPool2d(kernel_size=2, stride=2),    
 
             # Block 2: 16 → 32, 16x16 → 8x8
-            nn.Conv2d(in_channels=________, out_channels=________,   
+            nn.Conv2d(in_channels=16, out_channels=32,   
                       kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
 
             # Block 3: 32 → 64, 8x8 → 4x4
-            nn.Conv2d(in_channels=________, out_channels=________,   
+            nn.Conv2d(in_channels=32, out_channels=64,   
                       kernel_size=3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
@@ -207,9 +207,9 @@ class MyCNN(nn.Module):
         # ===== 分类层 =====
         self.classifier = nn.Sequential(
             # Flatten 后：64 * 4 * 4 = 1024
-            nn.Linear(in_features=________, out_features=________), 
+            nn.Linear(in_features=1024, out_features=128), 
             nn.ReLU(),
-            nn.Linear(in_features=________, out_features=________)   
+            nn.Linear(in_features=128, out_features=10)   
         )
 
     def forward(self, x):
@@ -260,6 +260,8 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
+
+
 class MyCNN(nn.Module):
     """
     一个简单的 CNN,输入 [N, 3, 32, 32](CIFAR-10 尺寸)，输出 [N, 10](10个类别)。
@@ -306,6 +308,7 @@ class MyCNN(nn.Module):
         return x
 
 
+
 def train_epoch(model, dataloader, loss_fn, optimizer, device):
     model.train()
     total_loss = 0
@@ -346,15 +349,15 @@ transform = transforms.Compose([
                          std=[0.2023, 0.1994, 0.2010])
 ])
 
-train_data = datasets.CIFAR10(root="data", train=________, download=True, transform=transform)    
-test_data = datasets.CIFAR10(root="data", train=________, download=True, transform=transform)     
+train_data = datasets.CIFAR10(root="data", train=True, download=True, transform=transform)    
+test_data = datasets.CIFAR10(root="data", train=False, download=True, transform=transform)     
 
-train_loader = DataLoader(train_data, batch_size=64, shuffle=________)    
-test_loader = DataLoader(test_data, batch_size=64, shuffle=________)     
+train_loader = DataLoader(train_data, batch_size=64, shuffle=True)    
+test_loader = DataLoader(test_data, batch_size=64, shuffle=False)     
 
 # 2. 创建模型
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = MyCNN(num_classes=________).to(device)    
+model = MyCNN(num_classes=10).to(device)    
 
 # 3. 损失函数和优化器
 loss_fn = nn.CrossEntropyLoss()
