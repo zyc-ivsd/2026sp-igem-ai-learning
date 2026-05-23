@@ -152,7 +152,8 @@ x = pool(x)
 print(f"MaxPool:           {x.shape}")
 
 # ========== 统计参数量 ==========
-total = sum(p.numel() for p in [conv1, conv2, conv3])
+# 遍历每个卷积层的参数（包括 weight 和 bias），并计算它们的元素个数
+total = sum(p.numel() for layer in [conv1, conv2, conv3] for p in layer.parameters())
 print(f"\n三个卷积层总参数: {total}")
 
 """
