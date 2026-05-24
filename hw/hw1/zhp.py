@@ -250,6 +250,47 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
+class MyCNN(nn.Module):
+
+    def __init__(self, num_classes=10):
+        super(MyCNN, self).__init__()
+
+        # ===== 特征提取层（Conv + ReLU + Pool）=====
+        self.features = nn.Sequential(
+            # Block 1: 3通道(RGB) → 16通道, 32x32 → 16x16
+            nn.Conv2d(in_channels=3, out_channels=16,   
+                      kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),    
+
+            # Block 2: 16 → 32, 16x16 → 8x8
+            nn.Conv2d(in_channels=16, out_channels=32,   
+                      kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            # Block 3: 32 → 64, 8x8 → 4x4
+            nn.Conv2d(in_channels=32, out_channels=64,   
+                      kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+        )
+
+        # ===== 分类层 =====
+        self.classifier = nn.Sequential(
+            # Flatten 后：64 * 4 * 4 = 1024
+            nn.Linear(in_features=1024, out_features=128), 
+            nn.ReLU(),
+            nn.Linear(in_features=128, out_features=num_classes)   
+        )
+
+    def forward(self, x):
+        x = self.features(x)              
+        x = x.view(x.size(0), -1)         # Flatten: [N, 64, 4, 4] → [N, 1024]
+        x = self.classifier(x)            
+        return x
+
+
 def train_epoch(model, dataloader, loss_fn, optimizer, device):
     model.train()
     total_loss = 0
