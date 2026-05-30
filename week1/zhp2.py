@@ -59,7 +59,7 @@ class MLP(nn.Module):
         return x
 
 model = MLP()
-device = torch.device('cuda' if False else 'cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = model.to(device)  # 将模型参数搬至GPU（若可用）
 
 # ================= 3. 优化器与调度器 =================
